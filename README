@@ -1,1 +1,4 @@
 Repro on Ubuntu 16.04
+
+Needs a non-default golang for the context package, e.g.
+sudo apt-get install golang-1.10
