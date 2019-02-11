@@ -52,6 +52,7 @@ func main() {
 		}
 	}
 	log.Print("List of Databases\n", databases)
+        /*
         d := "go_impala_repro"
         q := "SHOW TABLES IN " + d
 
@@ -73,7 +74,7 @@ func main() {
                 }
         }
         log.Printf("List of Tables in Database %s: %v\n", d, tables)
-        /*
+        */
 	for _, d := range databases {
 		q := "SHOW TABLES IN " + d
 
@@ -96,7 +97,7 @@ func main() {
 			}
 		}
 		log.Printf("List of Tables in Database %s: %v\n", d, tables)
-	}*/
+	}
         q2 := "select c_name from tpch_parquet.customer"
 
         rows, err = con.Query(ctx, q2)
