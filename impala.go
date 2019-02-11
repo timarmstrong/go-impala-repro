@@ -4,6 +4,7 @@ import (
 	"golang.org/x/net/context"
 	"fmt"
 	"log"
+        "time"
 
 	impala "github.com/bippio/go-impala"
 )
@@ -51,7 +52,28 @@ func main() {
 		}
 	}
 	log.Print("List of Databases\n", databases)
+        d := "go_impala_repro"
+        q := "SHOW TABLES IN " + d
 
+        results, err := con.Query(ctx, q)
+        if err != nil {
+                log.Fatal("error in querying database %s: %s", d, err.Error())
+        }
+
+        tables := make([]string, 0) // databases will contain all the DBs to enumerate later
+        for results.Next(ctx) {
+                row := make(map[string]interface{})
+                err = results.MapScan(row)
+                if err != nil {
+                        log.Println(err)
+                        continue
+                }
+                if tab, ok := row["name"].(string); ok {
+                        tables = append(tables, tab)
+                }
+        }
+        log.Printf("List of Tables in Database %s: %v\n", d, tables)
+        /*
 	for _, d := range databases {
 		q := "SHOW TABLES IN " + d
 
@@ -74,7 +96,7 @@ func main() {
 			}
 		}
 		log.Printf("List of Tables in Database %s: %v\n", d, tables)
-	}
+	}*/
         q2 := "select c_name from tpch_parquet.customer"
 
         rows, err = con.Query(ctx, q2)
@@ -82,7 +104,7 @@ func main() {
                 log.Fatal("error in query %s: %s", q2, err.Error())
         }
 
-        results := make([]string, 0)
+        rs := make([]string, 0)
         for rows.Next(ctx) {
                 row := make(map[string]interface{})
                 err = rows.MapScan(row)
@@ -91,8 +113,9 @@ func main() {
                         break
                 }
                 if tab, ok := row["c_name"].(string); ok {
-                        results = append(results, tab)
+                        rs = append(rs, tab)
                 }
         }
-        log.Printf("R: %v\n", results)
+        log.Printf("R: %v\n", rs)
+        time.Sleep(100 * time.Second)
 }
