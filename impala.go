@@ -9,19 +9,20 @@ import (
 )
 
 func main() {
-	host := "Impala Load Balancer Host IP"
+	// host := "Impala Load Balancer Host IP"
+	host := "localhost"
 	port := 21000
 
 	opts := impala.DefaultOptions
 
 	// enable LDAP authentication:
-	opts.UseLDAP = true
-	opts.Username = "LDAP Username"
-	opts.Password = "LDAP Password"
+	// opts.UseLDAP = true
+	// opts.Username = "LDAP Username"
+	// opts.Password = "LDAP Password"
 
 	// enable TLS
-	opts.UseTLS = true
-	opts.CACertPath = "cert.pem"
+	// opts.UseTLS = true
+	// opts.CACertPath = "cert.pem"
 
 	con, err := impala.Connect(host, port, &opts)
 	if err != nil {
@@ -74,4 +75,24 @@ func main() {
 		}
 		log.Printf("List of Tables in Database %s: %v\n", d, tables)
 	}
+        q2 := "select c_name from tpch_parquet.customer"
+
+        rows, err = con.Query(ctx, q2)
+        if err != nil {
+                log.Fatal("error in query %s: %s", q2, err.Error())
+        }
+
+        results := make([]string, 0)
+        for rows.Next(ctx) {
+                row := make(map[string]interface{})
+                err = rows.MapScan(row)
+                if err != nil {
+                        log.Println(err)
+                        break
+                }
+                if tab, ok := row["c_name"].(string); ok {
+                        results = append(results, tab)
+                }
+        }
+        log.Printf("R: %v\n", results)
 }
